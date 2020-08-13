@@ -145,6 +145,12 @@ LOGGING = {
     }
 }
 
+# DRF配置项
+REST_FRAMEWORK = {
+    # 异常处理
+    'EXCEPTION_HANDLER': 'Lizan.utils.exceptions.exception_handler',
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -180,3 +186,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
