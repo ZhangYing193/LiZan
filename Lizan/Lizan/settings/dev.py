@@ -9,12 +9,12 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-import os
+import os, sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
-
+sys.path.append(os.path.join(BASE_DIR, 'apps'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',  # DRF
+
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -187,3 +189,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# 修改用户模型类， 重新改写了默认的AbstrictUser,必须修改
+# ValueError: Invalid model reference 'Lizan.apps.users.model.User'. String model references must be of the form 'app_label.ModelName'.
+# 修改用户模型类的导包路径必须是  应用名.模型名  这种格式
+# AUTH_USER_MODEL = 'Lizan.apps.users.model.User'
+AUTH_USER_MODEL = 'users.User'
