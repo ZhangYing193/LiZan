@@ -19,14 +19,34 @@ var vm = new Vue({ //创建对象
 
         sms_code_tip: '获取短信验证码',
         error_sms_code_message: '', //短信验证码错误提示
+        error_name_message:'',
     },
     methods: { //校验方法
+        // 检查用户名
         check_username: function () {
             var len = this.username.length;
             if (len < 5 || len > 20) {
+                this.error_name_message = '请输入5-20个字符的用户名';
                 this.error_name = true;
             } else {
                 this.error_name = false;
+            }
+            // 检查重名
+            if (this.error_name == false) {
+                axios.get(this.host + '/usernames/' + this.username + '/count/', {
+                    responseType: 'json'
+                })
+                    .then(response => {
+                        if (response.data.count > 0) {
+                            this.error_name_message = '用户名已存在';
+                            this.error_name = true;
+                        } else {
+                            this.error_name = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data);
+                    })
             }
         },
         check_pwd: function () {
@@ -67,7 +87,7 @@ var vm = new Vue({ //创建对象
             }
         },
         // 发送手机短信验证码
-        send_sms_code: function(){
+        send_sms_code: function () {
 
             // 重新发送短信后，隐藏提示信息
             this.error_sms_code = false;
@@ -87,12 +107,12 @@ var vm = new Vue({ //创建对象
 
             // 向后端接口发送请求，让后端发送短信验证码
             axios.get(this.host + '/sms_codes/' + this.mobile + '/', {
-                    responseType: 'json'
-                })
+                responseType: 'json'
+            })
                 .then(response => {
                     // 表示后端发送短信成功
                     // 倒计时60秒，60秒后允许用户再次点击发送短信验证码的按钮
-                    var num = 6;
+                    var num = 60;
                     // 设置一个计时器
                     var t = setInterval(() => {
                         if (num == 1) {
@@ -121,13 +141,42 @@ var vm = new Vue({ //创建对象
                 })
         },
         // 注册
-        on_submit: function () { //点击才去调用方法
+        on_submit: function () {
             this.check_username();
             this.check_pwd();
             this.check_cpwd();
             this.check_phone();
             this.check_sms_code();
             this.check_allow();
+
+            if (this.error_name == false && this.error_password == false && this.error_check_password == false
+                && this.error_phone == false && this.error_sms_code == false && this.error_allow == false) {
+                axios.post(this.host + '/users/', {
+                    username: this.username,
+                    password: this.password,
+                    password2: this.password2,
+                    mobile: this.mobile,
+                    sms_code: this.sms_code,
+                    allow: this.allow.toString()
+                }, {
+                    responseType: 'json'
+                })
+                    .then(response => {
+                        location.href = '/index.html';
+                    })
+                    .catch(error => {
+                        if (error.response.status == 400) {
+                            if ('non_field_errors' in error.response.data) {
+                                this.error_sms_code_message = error.response.data.non_field_errors[0];
+                            } else {
+                                this.error_sms_code_message = '数据有误';
+                            }
+                            this.error_sms_code = true;
+                        } else {
+                            console.log(error.response.data);
+                        }
+                    })
+            }
         }
     }
 });

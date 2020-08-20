@@ -1,1 +1,1 @@
-SMS_CODE_REDIS_EXPIRES = 100  # 短信验证码过期时间
+SMS_CODE_REDIS_EXPIRES = 60  # 短信验证码过期时间
