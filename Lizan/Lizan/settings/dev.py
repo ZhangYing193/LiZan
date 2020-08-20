@@ -15,6 +15,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 sys.path.append(os.path.join(BASE_DIR, 'apps'))
+# print(sys.path)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -24,7 +26,6 @@ SECRET_KEY = '$-ljsytq%3l5tadu#)3ms*#lzg!1!=b1y_g^3su)0@4lx%xo&9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -37,11 +38,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',  # DRF
+    'corsheaders',  # cors 解决跨域
 
     'users.apps.UsersConfig',
+    'verifications.apps.VerificationsConfig',
 ]
 
+# CORS解决跨域
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://www.lizan.site:8080',
+    'http://api.lizan.site:8000'
+)
+ALLOWED_HOSTS = ['api.lizan.site', '127.0.0.1', 'localhost', 'www.lizan.site']
+
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # 解决跨域
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -96,7 +111,14 @@ CACHES = {
     },
     "session": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1.5:6379/1",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "verify_codes": {  # 存储短信验证码
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

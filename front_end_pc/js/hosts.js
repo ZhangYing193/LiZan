@@ -1,0 +1,1 @@
+var host = 'http://api.lizan.site:8000' //定义后端域名变量
